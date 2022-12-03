@@ -1,7 +1,7 @@
 /**
  * \file main.c
  *
- * \copyright (C) Copright 2022 "piscilus" Julian Kraemer
+ * \copyright (C) Copyright 2022 "piscilus" Julian Kraemer
  *
  * Distributed under MIT license.
  * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
