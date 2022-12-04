@@ -1,5 +1,8 @@
 # Advent of Code 2022
 
+![Last Commit on GitHub](https://img.shields.io/github/license/piscilus/aoc22)
+![Last Commit on GitHub](https://img.shields.io/github/last-commit/piscilus/aoc22)
+
 This is my participation in the [Advent of Code](https://adventofcode.com/2022)
 event for the year 2022.
 
