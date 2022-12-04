@@ -9,14 +9,11 @@
  * \brief Main program for advent of code 2022 day 2.
  */
 
-/*---- Includes --------------------------------------------------------------*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-
-/*---- Local macro definitions -----------------------------------------------*/
-#define MAX_LINE_SIZE (1024)
+#define MAX_LINE_SIZE (32U)
 
 #define SCORE_LOSS (0)
 #define SCORE_DRAW (3)
@@ -26,8 +23,6 @@
 #define SCORE_PAPER    (2)
 #define SCORE_SCISSORS (3)
 
-
-/*---- Local type definitions ------------------------------------------------*/
 typedef enum
 {
     R = 0,  /* rock */
@@ -44,20 +39,6 @@ typedef enum
     NUM_MY_CHOICE_
 } choice_mine_t;
 
-
-/*---- Local function prototypes ---------------------------------------------*/
-
-
-/*---- Global constants ------------------------------------------------------*/
-
-
-/*---- Global data -----------------------------------------------------------*/
-
-
-/*---- Local constants -------------------------------------------------------*/
-
-
-/*---- Local data ------------------------------------------------------------*/
 /* part 1: get battle score by choices */
 const int score_battle_p1[NUM_CHOICE_][NUM_CHOICE_] =
 {
@@ -128,12 +109,8 @@ const choice_t score_battle_p2[NUM_MY_CHOICE_] =
     [Z] = SCORE_WIN
 };
 
-
-/*---- Exported functions ----------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-    char linebuf[MAX_LINE_SIZE];
-
     printf("Advent of Code 2022 - Day 2: Rock Paper Scissors\n\n");
 
     if (argc != 2)
@@ -153,11 +130,12 @@ int main(int argc, char *argv[])
     int line = 1;
     int score_part1 = 0;
     int score_part2 = 0;
-    while (fgets(linebuf, MAX_LINE_SIZE, fp))
+    char line_buf[MAX_LINE_SIZE];
+    while (fgets(line_buf, MAX_LINE_SIZE, fp))
     {
         char opponent = '\0';
         char me = '\0';
-        if (sscanf(linebuf, "%c %c", &opponent, &me) == 2)
+        if (sscanf(line_buf, "%c %c", &opponent, &me) == 2)
         {
             switch (opponent)
             {
@@ -238,16 +216,10 @@ int main(int argc, char *argv[])
         line++;
     }
 
-    printf("score part 1: %d\n", score_part1);
-    printf("score part 2: %d\n", score_part2);
+    printf("part 1: score = %d\n", score_part1);
+    printf("part 2: score = %d\n", score_part2);
 
     fclose(fp);
 
     return EXIT_SUCCESS;
 }
-
-
-/*---- Local functions -------------------------------------------------------*/
-
-
-/*----------------------------------------------------------- END OF FILE ----*/

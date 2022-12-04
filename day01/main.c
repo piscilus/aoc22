@@ -9,42 +9,16 @@
  * \brief Main program for advent of code 2022 day 1.
  */
 
-/*---- Includes --------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_LINE_SIZE   (32U)
+#define DATA_CHUNK_SIZE (2U)
 
-/*---- Local macro definitions -----------------------------------------------*/
-#define MAX_LINE_SIZE   (1024)
-#define DATA_CHUNK_SIZE (2)
-
-
-/*---- Local type definitions ------------------------------------------------*/
-
-
-/*---- Local function prototypes ---------------------------------------------*/
 int compare_ints(const void* a, const void* b);
 
-
-/*---- Global constants ------------------------------------------------------*/
-
-
-/*---- Global data -----------------------------------------------------------*/
-
-
-/*---- Local constants -------------------------------------------------------*/
-
-
-/*---- Local data ------------------------------------------------------------*/
-
-
-/*---- Exported functions ----------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-    char linebuf[MAX_LINE_SIZE];
-    size_t elf = 0U;
-    size_t elves_max = DATA_CHUNK_SIZE;
-
     printf("Advent of Code 2022 - Day 1: Calorie Counting\n\n");
 
     if (argc != 2)
@@ -61,6 +35,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    char line_buf[MAX_LINE_SIZE];
+    size_t elf = 0U;
+    size_t elves_max = DATA_CHUNK_SIZE;
     int* calories_per_elf = malloc(elves_max * sizeof(int));
     if (calories_per_elf == NULL)
     {
@@ -70,9 +47,9 @@ int main(int argc, char *argv[])
 
     calories_per_elf[elf] = 0;
     int line = 1;
-    while (fgets(linebuf, MAX_LINE_SIZE, fp))
+    while (fgets(line_buf, MAX_LINE_SIZE, fp))
     {
-        if (linebuf[0] == '\n')
+        if (line_buf[0] == '\n')
         {
             elf++;
             if (elf >= elves_max)
@@ -90,7 +67,7 @@ int main(int argc, char *argv[])
         else
         {
             int calories = 0;
-            if (sscanf(linebuf, "%d", &calories) == 1)
+            if (sscanf(line_buf, "%d", &calories) == 1)
             {
                 calories_per_elf[elf] += calories;
             }
@@ -108,7 +85,7 @@ int main(int argc, char *argv[])
     size_t elves = elf + 1U;
     printf("Entries of %lld elves found.\n", elves);
 
-    /* Part 1 */
+    /* part 1 */
     int calories_max = calories_per_elf[0];
     for (size_t elf = 1U; elf < elves; elf++)
     {
@@ -119,10 +96,10 @@ int main(int argc, char *argv[])
     }
     printf("Most calories carried by an elf: %d\n", calories_max);
 
-    /* Part 2 */
+    /* part 2 */
     qsort(calories_per_elf, elves, sizeof(int), compare_ints);
     int calories_top_three = 0;
-    for (size_t elf = 1; elf <= 3; elf++)
+    for (size_t elf = 1U; elf <= 3U; elf++)
     {
         calories_top_three += calories_per_elf[elves-elf];
     }
@@ -131,8 +108,6 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-
-/*---- Local functions -------------------------------------------------------*/
 int compare_ints(const void* a, const void* b)
 {
     int arg1 = *(const int*)a;
@@ -146,6 +121,3 @@ int compare_ints(const void* a, const void* b)
 
     return 0;
 }
-
-
-/*----------------------------------------------------------- END OF FILE ----*/

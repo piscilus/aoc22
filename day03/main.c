@@ -9,45 +9,24 @@
  * \brief Main program for advent of code 2022 day 3.
  */
 
-/*---- Includes --------------------------------------------------------------*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-/*---- Local macro definitions -----------------------------------------------*/
 #define RUCKSACK_CAPACITY (128U)
 
-
-/*---- Local type definitions ------------------------------------------------*/
 typedef struct
 {
     size_t items_num;              /* number of items in the rucksack */
     char items[RUCKSACK_CAPACITY]; /* items in the rucksack*/
 } rucksack_t;
 
-
-/*---- Local function prototypes ---------------------------------------------*/
 int compare_compartments(rucksack_t* rucksack);
 int determine_priority(char item);
 int find_common_badge(rucksack_t rucksacks[]);
 int compare_rucksacks(const void* a, const void* b);
 
-
-/*---- Global constants ------------------------------------------------------*/
-
-
-/*---- Global data -----------------------------------------------------------*/
-
-
-/*---- Local constants -------------------------------------------------------*/
-
-
-/*---- Local data ------------------------------------------------------------*/
-
-
-/*---- Exported functions ----------------------------------------------------*/
 int main(int argc, char *argv[])
 {
     printf("Advent of Code 2022 - Day 3: Rucksack Reorganization\n\n");
@@ -78,7 +57,7 @@ int main(int argc, char *argv[])
         {
             rucksacks[2].items_num--; // omit EOL
 
-            /* part 1: */
+            /* part 1 */
             if ((rucksacks[2].items_num % 2U) == 0U)
             {
                 priorities_sum_p1 += compare_compartments(&rucksacks[2]);
@@ -89,7 +68,7 @@ int main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
 
-            /* part 2: */
+            /* part 2 */
             if (i < 2)
             {
                 /* store two rucksacks */
@@ -115,8 +94,6 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-
-/*---- Local functions -------------------------------------------------------*/
 int compare_compartments(rucksack_t* rucksack)
 {
     /* first half / first compartment */
@@ -197,7 +174,3 @@ int compare_rucksacks(const void* a, const void* b)
 
     return 0;
 }
-
-
-
-/*----------------------------------------------------------- END OF FILE ----*/

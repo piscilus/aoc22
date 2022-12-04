@@ -9,18 +9,13 @@
  * \brief Main program for advent of code 2022 day 4.
  */
 
-/*---- Includes --------------------------------------------------------------*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-/*---- Local macro definitions -----------------------------------------------*/
 #define MAX_LINE_SIZE (64U)
 
-
-/*---- Local type definitions ------------------------------------------------*/
 enum
 {
     ELF_FIRST = 0,
@@ -34,23 +29,6 @@ typedef struct
     int max;
 } range_t;
 
-
-/*---- Local function prototypes ---------------------------------------------*/
-
-
-/*---- Global constants ------------------------------------------------------*/
-
-
-/*---- Global data -----------------------------------------------------------*/
-
-
-/*---- Local constants -------------------------------------------------------*/
-
-
-/*---- Local data ------------------------------------------------------------*/
-
-
-/*---- Exported functions ----------------------------------------------------*/
 int main(int argc, char *argv[])
 {
     printf("Advent of Code 2022 - Day 4: Camp Cleanup\n\n");
@@ -69,14 +47,14 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    char linebuf[MAX_LINE_SIZE];
+    char line_buf[MAX_LINE_SIZE];
     int line = 0;
     int count_contained = 0;
     int count_overlap = 0;
-    while (fgets(linebuf, MAX_LINE_SIZE, fp))
+    while (fgets(line_buf, MAX_LINE_SIZE, fp))
     {
         range_t ranges[NUM_ELVES_] = { 0 };
-        if (sscanf(linebuf, "%d-%d,%d-%d",
+        if (sscanf(line_buf, "%d-%d,%d-%d",
                 &ranges[ELF_FIRST].min,
                 &ranges[ELF_FIRST].max,
                 &ranges[ELF_SECOND].min,
@@ -130,10 +108,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-
-
-/*---- Local functions -------------------------------------------------------*/
-
-
-
-/*----------------------------------------------------------- END OF FILE ----*/
