@@ -7,7 +7,6 @@
  * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
  */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
