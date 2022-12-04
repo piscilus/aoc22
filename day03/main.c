@@ -1,12 +1,10 @@
-/**
- * \file main.c
+/*
+ * Main program for advent of code 2022 day 3.
  *
- * \copyright (C) Copyright 2022 "piscilus" Julian Kraemer
+ * (C) Copyright 2022 "piscilus" Julian Kraemer
  *
  * Distributed under MIT license.
  * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
- *
- * \brief Main program for advent of code 2022 day 3.
  */
 
 #include <assert.h>
