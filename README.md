@@ -12,12 +12,12 @@ Enjoy the Advent season!
 
 ## Status
 
-| day | part 1 | part 2 |
-|-----|--------|--------|
-|  1  |     ⭐ |     ⭐ |
-|  2  |     ⭐ |     ⭐ |
-|  3  |     ⭐ |     ⭐ |
-|  4  |     ⭐ |     ⭐ |
+| day                                       | part 1 | part 2 |
+|-------------------------------------------|--------|--------|
+| [01](https://adventofcode.com/2022/day/1) |     ⭐ |     ⭐ |
+| [02](https://adventofcode.com/2022/day/2) |     ⭐ |     ⭐ |
+| [03](https://adventofcode.com/2022/day/3) |     ⭐ |     ⭐ |
+| [04](https://adventofcode.com/2022/day/4) |     ⭐ |     ⭐ |
 
 ## Implementation details
 
