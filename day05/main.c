@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_SIZE   (64U)
-#define MAX_STACK_SIZE  (100U)
-#define NUM_STACKS      (9U)
+#define MAX_LINE_SIZE   (64U)  /* max line length of input file */
+#define MAX_STACK_SIZE  (100U) /* max size of a stack */
+#define NUM_STACKS      (9U)   /* (max) number of stacks*/
 
 typedef enum
 {
@@ -57,20 +57,24 @@ int main(int argc, char *argv[])
 
     int line = 0;
     char line_buf[MAX_LINE_SIZE];
-    stack_t stacks[NUM_STACKS] = {0};
+    stack_t stacks_p1[NUM_STACKS] = {0};
+    stack_t stacks_p2[NUM_STACKS] = {0};
     state_t state = READ_STACKS;
     while (fgets(line_buf, MAX_LINE_SIZE, fp))
     {
+        /* use empty line to switch from initial stack to move operations */
         if (line_buf[0] == '\n')
         {
             state = MOVE_DATA;
+            /* reverse stack data to have top most element as last char in string */
             for (size_t s = 0U; s < NUM_STACKS; s++)
             {
-                if (stacks[s].size > 0)
-                    reverse(stacks[s].data);
+                if (stacks_p1[s].size > 0)
+                    reverse(stacks_p1[s].data);
             }
             printf("initial stacks:\n");
-            print_stacks(stacks);
+            print_stacks(stacks_p1);
+            memcpy(stacks_p2, stacks_p1, sizeof(stacks_p2));
             continue; /* skip processing of empty line */
         }
         switch (state)
@@ -84,10 +88,10 @@ int main(int argc, char *argv[])
                     {
                         if (line_buf[i] >= 'A' && line_buf[i] <= 'Z')
                         {
-                            if (stacks[n].size < MAX_STACK_SIZE)
+                            if (stacks_p1[n].size < MAX_STACK_SIZE)
                             {
-                                stacks[n].data[stacks[n].size] = line_buf[i];
-                                stacks[n].size++;
+                                stacks_p1[n].data[stacks_p1[n].size] = line_buf[i];
+                                stacks_p1[n].size++;
                             }
                             else
                             {
@@ -105,14 +109,18 @@ int main(int argc, char *argv[])
                     move_t move = {0};
                     if (sscanf(line_buf, "move %d from %d to %d", &move.num, &move.from, &move.to) == 3)
                     {
+                        /* TODO: sanity checks to avoid invalid array indexes */
                         move.from--;
                         move.to--;
                         for (int i = 0; i < move.num; i++)
                         {
-                            stacks[move.from].size--;
-                            stacks[move.to].data[stacks[move.to].size] = stacks[move.from].data[stacks[move.from].size];
-                            stacks[move.to].size++;
+                            stacks_p1[move.from].size--;
+                            stacks_p1[move.to].data[stacks_p1[move.to].size] = stacks_p1[move.from].data[stacks_p1[move.from].size];
+                            stacks_p1[move.to].size++;
                         }
+                        stacks_p2[move.from].size -= move.num;
+                        memcpy(&stacks_p2[move.to].data[stacks_p2[move.to].size], &stacks_p2[move.from].data[stacks_p2[move.from].size], move.num);
+                        stacks_p2[move.to].size += move.num;
                     }
                     else
                     {
@@ -122,15 +130,21 @@ int main(int argc, char *argv[])
                 }
                 break;
             default:
+                fprintf(stderr, "Unexpected state");
                 exit(EXIT_FAILURE);
         }
         line++;
     }
 
     printf("\nPart 1: Final string = ");
-    for (size_t s = 0; s < NUM_STACKS; s++)
+    for (size_t s = 0U; s < NUM_STACKS; s++)
     {
-        printf("%c", stacks[s].data[stacks[s].size-1]);
+        printf("%c", stacks_p1[s].data[stacks_p1[s].size-1]);
+    }
+    printf("\nPart 2: Final string = ");
+    for (size_t s = 0U; s < NUM_STACKS; s++)
+    {
+        printf("%c", stacks_p2[s].data[stacks_p2[s].size-1]);
     }
     printf("\n");
 
@@ -141,7 +155,7 @@ int main(int argc, char *argv[])
 
 void print_stacks(const stack_t stacks[])
 {
-    for (size_t s = 0; s < NUM_STACKS; s++)
+    for (size_t s = 0U; s < NUM_STACKS; s++)
     {
         printf("#%lld: [%lld] %s\n", s, stacks[s].size, stacks[s].data);
     }
