@@ -19,6 +19,7 @@ Enjoy the Advent season!
 | [03](https://adventofcode.com/2022/day/3) |     ⭐ |     ⭐ |
 | [04](https://adventofcode.com/2022/day/4) |     ⭐ |     ⭐ |
 | [05](https://adventofcode.com/2022/day/5) |     ⭐ |     ⭐ |
+| [06](https://adventofcode.com/2022/day/6) |     ⭐ |     ⭐ |
 
 ## Implementation details
 
