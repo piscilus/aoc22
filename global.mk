@@ -14,7 +14,9 @@ CFLAGS =\
 	-std=c99\
 	-Wall\
 	-Wextra\
-	-Wpedantic
+	-Wpedantic\
+	-fsanitize=undefined\
+	-fsanitize-undefined-trap-on-error
 CFLAGS_RELEASE = -DNDEBUG
 CFLAGS_DEBUG = -g
 
@@ -22,22 +24,28 @@ CFLAGS_DEBUG = -g
 #LINKER
 LD=gcc
 
-LDFLAGS =
+LDFLAGS =\
+	-fsanitize=undefined\
+	-fsanitize-undefined-trap-on-error
 LDFLAGS_RELEASE = -Wl,-Map -Wl,release/$(TARGET_NAME).map
 LDFLAGS_DEBUG = -Wl,-Map -Wl,debug/$(TARGET_NAME).map
 
 
 OBJECTS_RELEASE = $(addprefix $(OBJECTDIR_RELEASE)/, $(SOURCES:.c=.o) )
 OBJECTS_DEBUG = $(addprefix $(OBJECTDIR_DEBUG)/, $(SOURCES:.c=.o) )
+DEPENDS_RELEASE = $(addprefix $(OBJECTDIR_RELEASE)/, $(SOURCES:.c=.d) )
+DEPENDS_DEBUG = $(addprefix $(OBJECTDIR_DEBUG)/, $(SOURCES:.c=.d) )
 
+-include $(DEPENDS_RELEASE)
+-include $(DEPENDS_DEBUG)
 
 $(OBJECTDIR_RELEASE)/%.o: %.c
 	-mkdir -p $(@D)
-	$(CC) $(INCLUDES) $(CFLAGS) $(CFLAGS_RELEASE) $(DEFINES) -o $@ -l $(@D) $<
+	$(CC) $(INCLUDES) $(CFLAGS) $(CFLAGS_RELEASE) $(DEFINES) -MMD -MP -o $@ -l $(@D) $<
 
 $(OBJECTDIR_DEBUG)/%.o: %.c
 	-mkdir -p $(@D)
-	$(CC) $(INCLUDES) $(CFLAGS) $(CFLAGS_DEBUG) $(DEFINES) -o $@ -l $(@D) $<
+	$(CC) $(INCLUDES) $(CFLAGS) $(CFLAGS_DEBUG) $(DEFINES) -MMD -MP -o $@ -l $(@D) $<
 
 release/$(TARGET_NAME).exe: $(OBJECTS_RELEASE)
 	mkdir -p release
