@@ -84,6 +84,8 @@ int unique(const char s[], size_t len)
     for (size_t i = 0U; i < len; i++)
     {
         int n = (int) s[i];
+        assert(n >= 0);
+        assert(n < 128);
         if (lut[n] != 0)
             return 0;
         else
