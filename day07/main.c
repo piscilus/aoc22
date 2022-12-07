@@ -16,6 +16,7 @@
 
 #define MAX_LINE_SIZE (128) /* max line length of input file, incl. EOL */
 #define MAX_NUM_DIRS  (500)
+#define DIR_MAX_SIZE     (100000) /* limit for part 1*/
 #define TOTAL_DISK_SPACE (70000000)
 #define MIN_FREE_SPACE   (30000000)
 
@@ -42,8 +43,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    int dir_size_total = 0;
-    dir_size_total = scan_dirs_recursively(fp);
+    int dir_size_total = scan_dirs_recursively(fp);
 
     fclose(fp);
 
@@ -51,12 +51,12 @@ int main(int argc, char *argv[])
     int part1 = 0;
     for (int i = 0; i < MAX_NUM_DIRS; i++)
     {
-        if (dir_sizes[i] <= 100000)
+        if (dir_sizes[i] <= DIR_MAX_SIZE)
         {
             part1 += dir_sizes[i];
         }
     }
-    printf("part 1: total size of all directories not larger than 100000 = %d", part1);
+    printf("part 1: total size of all directories not larger than 100000 = %d\n", part1);
 
     /* part 2*/
     int free_space = TOTAL_DISK_SPACE - dir_size_total;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     {
         if (free_space + dir_sizes[i] >= MIN_FREE_SPACE)
         {
-            printf("part 2: smallest directory to delete to get enough free space = %d", dir_sizes[i]);
+            printf("part 2: smallest directory to delete to get enough free space = %d\n", dir_sizes[i]);
             break;
         }
     }
@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
 static int scan_dirs_recursively(FILE *fp)
 {
     char line[MAX_LINE_SIZE];
-    int pos = depth++;
+    int i = depth++;
 
-    assert(pos < MAX_NUM_DIRS);
+    assert(i < MAX_NUM_DIRS);
 
     while (fgets(line, MAX_LINE_SIZE, fp))
     {
@@ -96,7 +96,7 @@ static int scan_dirs_recursively(FILE *fp)
                 else /* enter dir */
                 {
                     /* accumulate all directory sizes */
-                    dir_sizes[pos] += scan_dirs_recursively(fp);
+                    dir_sizes[i] += scan_dirs_recursively(fp);
                 }
             }
             /* ignore ls */
@@ -105,10 +105,10 @@ static int scan_dirs_recursively(FILE *fp)
         {
             int dir_size = 0;
             if (sscanf(line, "%d", &dir_size) == 1)
-                dir_sizes[pos] += dir_size;
+                dir_sizes[i] += dir_size;
         }
         /* ignore dir */
     }
 
-    return dir_sizes[pos];
+    return dir_sizes[i];
 }
