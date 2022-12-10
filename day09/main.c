@@ -63,14 +63,17 @@ int main(int argc, char *argv[])
 
     char line_buf[MAX_LINE_SIZE] = {0};
 
-
-    track_t track;
-    initTrack(&track, 100);
+    track_t track_p1;
+    track_t track_p2;
+    initTrack(&track_p1, 100);
+    initTrack(&track_p2, 100);
 
     visited_t head = {0};
-    visited_t tail = {0};
+    visited_t tail_p1 = {0};
+    visited_t tail_p2[9] = {0};
 
-    addPosition(&track, tail);
+    addPosition(&track_p1, tail_p1);
+    addPosition(&track_p2, tail_p2[0]);
     while (fgets(line_buf, MAX_LINE_SIZE, fp))
     {
         char dir = 'x';
@@ -80,11 +83,16 @@ int main(int argc, char *argv[])
             assert(steps >= 0);
             while (steps > 0)
             {
+                /* part 1 */
                 move_head(dir, &head.pos);
-                if (move_tail(head, &tail))
-                {
-                    addPosition(&track, tail);
-                }
+                if (move_tail(head, &tail_p1))
+                    addPosition(&track_p1, tail_p1);
+                /* part 2 */
+                move_tail(head, &tail_p2[0]);
+                for(int n = 1; n < 8; n++)
+                    move_tail(tail_p2[n - 1], &tail_p2[n]);
+                if (move_tail(tail_p2[7], &tail_p2[8]))
+                    addPosition(&track_p2, tail_p2[8]);
                 steps--;
             }
         }
@@ -94,17 +102,24 @@ int main(int argc, char *argv[])
         }
     }
 
-    qsort(track.positions, track.used, sizeof(visited_t), compare_ints);
+    qsort(track_p1.positions, track_p1.used, sizeof(visited_t), compare_ints);
+    qsort(track_p2.positions, track_p2.used, sizeof(visited_t), compare_ints);
 
     int unique = 1;
-    for (size_t i = 1U; i < track.used; i++)
-        if (track.positions[i].code > track.positions[i - 1U].code)
+    for (size_t i = 1U; i < track_p1.used; i++)
+        if (track_p1.positions[i].code > track_p1.positions[i - 1U].code)
             unique++;
-
     printf("Part 1: Unique positions of tail = %d\n", unique);
 
+    unique = 1;
+    for (size_t i = 1U; i < track_p2.used; i++)
+        if (track_p2.positions[i].code > track_p2.positions[i - 1U].code)
+            unique++;
+    printf("Part 2: Unique positions of tail = %d\n", unique);
+
     fclose(fp);
-    freeTrack(&track);
+    freeTrack(&track_p1);
+    freeTrack(&track_p2);
 
     return EXIT_SUCCESS;
 }
@@ -126,6 +141,7 @@ int compare_ints(const void* a, const void* b)
 void initTrack(track_t* t, size_t size)
 {
     t->positions = malloc(size * sizeof(visited_t));
+    assert(t->positions != NULL);
     t->used = 0U;
     t->size = size;
 }
@@ -136,6 +152,7 @@ void addPosition(track_t* t, visited_t pos)
     {
         t->size *= 2U;
         t->positions = realloc(t->positions, t->size * sizeof(visited_t));
+        assert(t->positions != NULL);
     }
     t->positions[t->used++] = pos;
 }
@@ -171,31 +188,50 @@ void move_head(char dir, pos_t* pos)
 
 int move_tail(visited_t head, visited_t* tail)
 {
-
     if (tail->pos.y - head.pos.y > 1) /* up */
     {
         tail->pos.y--;
-        tail->pos.x = head.pos.x;
+        if ((tail->pos.x - head.pos.x) > 1) /* diag left */
+            tail->pos.x--;
+        else if ((head.pos.x - tail->pos.x) > 1) /* diag right */
+            tail->pos.x++;
+        else
+            tail->pos.x = head.pos.x;
     }
     else if (head.pos.y - tail->pos.y > 1) /* down */
     {
         tail->pos.y++;
-        tail->pos.x = head.pos.x;
+        if ((tail->pos.x - head.pos.x) > 1) /* diag left */
+            tail->pos.x--;
+        else if ((head.pos.x - tail->pos.x) > 1) /* diag right */
+            tail->pos.x++;
+        else
+            tail->pos.x = head.pos.x;
     }
     else if (tail->pos.x - head.pos.x > 1) /* left */
     {
         tail->pos.x--;
-        tail->pos.y = head.pos.y;
+        if ((tail->pos.y - head.pos.y) > 1) /* diag up */
+            tail->pos.y--;
+        else if ((head.pos.y - tail->pos.y) > 1) /* diag down */
+            tail->pos.y++;
+        else
+            tail->pos.y = head.pos.y;
     }
     else if (head.pos.x - tail->pos.x > 1) /* right */
     {
         tail->pos.x++;
-        tail->pos.y = head.pos.y;
+        if ((tail->pos.y - head.pos.y) > 1) /* diag up */
+            tail->pos.y--;
+        else if ((head.pos.y - tail->pos.y) > 1) /* diag down */
+            tail->pos.y++;
+        else
+            tail->pos.y = head.pos.y;
     }
     else
     {
-        return 0;
+        return 0; /* no movement */
     }
 
-    return 1;
+    return 1; /* moved */
 }
