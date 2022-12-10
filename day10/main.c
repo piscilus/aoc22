@@ -16,6 +16,7 @@
 #include <stdint.h>
 
 #define MAX_LINE_SIZE  (16)
+#define CHECK_FIRST    (20U)
 #define CHECK_INTERVAL (40U)
 #define CRT_X          (40U)
 #define CRT_Y          (6U)
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
     char line_buf[MAX_LINE_SIZE] = {0};
 
     unsigned int cycles = 1U;
-    unsigned int check = 20U;
+    unsigned int check = CHECK_FIRST;
     unsigned int result = 0;
     int register_x = 1;
     int num = 0;
@@ -87,23 +88,15 @@ int main(int argc, char *argv[])
             case READ_INSTRUCTION:
                 if (fgets(line_buf, MAX_LINE_SIZE, fp))
                 {
-                    if (line_buf[0] == 'n') /* noop */
-                    {
+                    if (line_buf[0] == 'n')
                         state = PROCESS_NOOP;
-                    }
                     else if (sscanf(line_buf, "addx %d", &num) == 1)
-                    {
                         state = PROCESS_ADDX1;
-                    }
                     else
-                    {
                         assert(0);
-                    }
                 }
                 else
-                {
                     running = 0;
-                }
                 break;
             case PROCESS_NOOP:
                 state = READ_INSTRUCTION;
