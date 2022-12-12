@@ -7,6 +7,11 @@
  * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
  */
 
+/*
+ * WIP
+ * part 1 solved but currently not working due to preparations for part 2!
+ */
+
 #include "queue.h"
 
 #include <assert.h>
@@ -19,7 +24,7 @@
 
 #define MAX_LINE_SIZE  (64)
 #define MAX_MONKEY     (20)
-#define ROUNDS         (20)
+#define ROUNDS         (10000)
 
 typedef enum
 {
@@ -68,14 +73,16 @@ int main(int argc, char *argv[])
     char line_buf[MAX_LINE_SIZE] = {0};
     int num_monkey = 0;
     monkey_t monkeys[MAX_MONKEY] = {0};
-    monkeys[num_monkey].items = queue_init();
+    monkeys[num_monkey].items = queue_init(sizeof(int64_t));
+    assert(monkeys[num_monkey].items != NULL);
     while (fgets(line_buf, MAX_LINE_SIZE, fp) != NULL)
     {
         assert(num_monkey < MAX_MONKEY);
         if (line_buf[0] == '\n')
         {
             num_monkey++;
-            monkeys[num_monkey].items = queue_init();
+            monkeys[num_monkey].items = queue_init(sizeof(int64_t));
+            assert(monkeys[num_monkey].items != NULL);
         }
         else if (line_buf[2] == 'O')
         {
@@ -121,7 +128,8 @@ int main(int argc, char *argv[])
                     errno = 0;
                     long v = strtol(p, &p, 10);
                     assert(errno == 0);
-                    queue_enqueue(monkeys[num_monkey].items, (uint64_t) v);
+                    int r = queue_enqueue(monkeys[num_monkey].items, &v);
+                    assert(r);
                 }
                 else
                     p++;
@@ -157,6 +165,7 @@ int main(int argc, char *argv[])
                     default:
                         assert(0);
                 }
+                // uint64_t before = worrylvl;
                 switch(monkeys[m].operation)
                 {
                     case ADDITION:
@@ -168,16 +177,21 @@ int main(int argc, char *argv[])
                     default:
                         assert(0);
                 }
+                // if ( worrylvl < before)
+                //     fprintf(stderr, "%llu %llu %llu\n", before, operand, worrylvl);
+
                 worrylvl /= 3UL;
                 if ((worrylvl % monkeys[m].divisor) == 0UL)
                 {
                     assert(monkeys[m].next_monkey_true < num_monkey);
-                    queue_enqueue(monkeys[monkeys[m].next_monkey_true].items, worrylvl);
+                    int r = queue_enqueue(monkeys[monkeys[m].next_monkey_true].items, &worrylvl);
+                    assert(r);
                 }
                 else
                 {
                     assert(monkeys[m].next_monkey_false < num_monkey);
-                    queue_enqueue(monkeys[monkeys[m].next_monkey_false].items, worrylvl);
+                    int r = queue_enqueue(monkeys[monkeys[m].next_monkey_false].items, &worrylvl);
+                    assert(r);
                 }
             }
         }

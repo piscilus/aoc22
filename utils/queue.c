@@ -1,69 +1,156 @@
+/*
+ * Simple FIFO queue implementation.
+ *
+ * (C) Copyright 2022 "piscilus" Julian Kraemer
+ *
+ * Distributed under MIT license.
+ * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
+ */
+
 #include "queue.h"
 
 #include <assert.h>
+#include <string.h>
 
-queue_t* queue_init()
+typedef struct node
 {
-    queue_t *q = (queue_t*) malloc(sizeof(queue_t));
-    assert(q != NULL);
+    void* item;
+    struct node *next;
+} node_t;
 
-    q->head = NULL;
-    q->tail = NULL;
-    q->n = 0U;
+struct queue_list
+{
+    size_t count;
+    size_t item_size;
+    node_t *head;
+    node_t *tail;
+};
+
+queue_t*
+queue_init(size_t item_size)
+{
+    assert(item_size > 0U);
+
+    queue_t* q = (queue_t*) malloc(sizeof(queue_t));
+    if (q == NULL)
+    {
+        return NULL;
+    }
+
+    q->count = 0U;
+    q->item_size = item_size;
+    q->head = q->tail = NULL;
 
     return q;
 }
 
-void queue_enqueue(queue_t *q, uint64_t data)
+int
+queue_enqueue(queue_t* q, const void* item)
 {
-    fifo_node_t *tmp = malloc(sizeof(fifo_node_t));
-    assert(tmp);
+    assert(q != NULL);
+    assert(item != NULL);
 
-    tmp->data = data;
-    tmp->next = NULL;
-
-    if (q->n == 0U)
+    node_t* new = (node_t*) malloc(sizeof(node_t));
+    if (new == NULL)
     {
-        q->tail = tmp;
-        q->head = tmp;
+        return 0;
+    }
+
+    new->item = malloc(q->item_size);
+    if (new->item == NULL)
+    {
+        free(new);
+        return 0;
+    }
+
+    new->next = NULL;
+
+    (void) memcpy(new->item, item, q->item_size);
+
+    if (q->count == 0U)
+    {
+        q->head = q->tail = new;
     }
     else
     {
-        q->tail->next = tmp;
-        q->tail = tmp;
+        q->tail->next = new;
+        q->tail = new;
     }
 
-    q->n++;
-}
-
-int queue_dequeue(queue_t *q, uint64_t* data)
-{
-    if (q->n == 0U)
-        return 0;
-
-    fifo_node_t *head = q->head;
-    *data = head->data;
-    q->head = head->next;
-    free(head);
-    q->n--;
+    q->count++;
 
     return 1;
 }
 
-void queue_destroy(queue_t *q)
+int
+queue_dequeue(queue_t* q, void* item)
 {
     assert(q != NULL);
+    assert(item != NULL);
 
-    fifo_node_t *tmp = q->head;
-    fifo_node_t *next = NULL;
-
-    while ((q->n > 0) && (tmp != NULL))
+    if (q->count == 0U)
     {
-        next = tmp->next;
-        free(tmp);
-        tmp = next;
-        q->n--;
+        return 0;
     }
 
-    q->head = NULL;
+    node_t *tmp = q->head;
+    (void) memcpy(item, tmp->item, q->item_size);
+
+    if (q->count > 1U)
+    {
+        q->head = q->head->next;
+    }
+    else
+    {
+        q->head = NULL;
+        q->tail = NULL;
+    }
+
+    q->count--;
+    free(tmp->item);
+    free(tmp);
+
+    return 1;
+}
+
+int
+queue_peek(const queue_t* q, void* item)
+{
+    assert(q != NULL);
+    assert(item != NULL);
+
+    if (q->count == 0U)
+    {
+        return 0;
+    }
+    else
+    {
+       node_t* tmp = q->head;
+       (void) memcpy(item, tmp->item, q->item_size);
+       return 1;
+    }
+}
+
+size_t
+queue_count(const queue_t* q)
+{
+    return q->count;
+}
+
+void
+queue_destroy(queue_t* q)
+{
+    node_t* tmp;
+
+    while (q->count > 0U)
+    {
+        tmp = q->head;
+        q->head = tmp->next;
+        free(tmp->item);
+        free(tmp);
+        q->count--;
+    }
+
+    q->item_size = 0U;
+    q->head = q->tail = NULL;
 }
