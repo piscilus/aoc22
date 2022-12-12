@@ -93,35 +93,35 @@ static void parse_input(FILE* fp, grid_t* grid)
     int c = 0;
     while ((c = fgetc(fp)) != EOF)
     {
-        grid->size.x++;
-        assert(grid->size.x < MAP_SIZE);
-        assert(grid->size.y < MAP_SIZE);
-        switch (c)
+        if (c == '\n')
         {
-            case '\n':
-                grid->size.x = 0U;
-                grid->size.y++;
-                break;
-            case 'S':
-                assert(grid->start.x == 0U);
-                assert(grid->start.y == 0U);
-                grid->start.x = grid->size.x - 1U;
-                grid->start.y = grid->size.y;
-                grid->visited[grid->start.y][grid->start.x] = 1;
-                grid->heightmap[grid->start.y][grid->start.x] = 0;
-                break;
-            case 'E':
-                assert(grid->end.x == 0U);
-                assert(grid->end.y == 0U);
-                grid->end.x = grid->size.x - 1U;
-                grid->end.y = grid->size.y;
-                grid->visited[grid->end.y][grid->end.x] = 0;
-                grid->heightmap[grid->end.y][grid->end.x] = 'z' - 'a';
-                break;
-            default:
-                assert(c >= 'a' && c <= 'z');
-                grid->heightmap[grid->size.y][grid->size.x - 1U] = c - 'a';
-                break;
+            grid->size.x = 0U;
+            grid->size.y++;
+        }
+        else
+        {
+            assert(grid->size.x < MAP_SIZE);
+            assert(grid->size.y < MAP_SIZE);
+            switch (c)
+            {
+                case 'S':
+                    /* assume that only a single S exists on the grid */
+                    grid->start.x = grid->size.x;
+                    grid->start.y = grid->size.y;
+                    grid->heightmap[grid->start.y][grid->start.x] = 0;
+                    break;
+                case 'E':
+                    /* assume that only a single E exists on the grid */
+                    grid->end.x = grid->size.x;
+                    grid->end.y = grid->size.y;
+                    grid->heightmap[grid->end.y][grid->end.x] = 'z' - 'a';
+                    break;
+                default:
+                    assert((c >= 'a') && (c <= 'z'));
+                    grid->heightmap[grid->size.y][grid->size.x] = c - 'a';
+                    break;
+            }
+            grid->size.x++;
         }
     }
     grid->size.y++;
@@ -137,9 +137,7 @@ static void print_grid_map(const grid_t* grid)
     for (size_t y = 0U; y < grid->size.y; y++)
     {
         for (size_t x = 0U; x < grid->size.x; x++)
-        {
             printf("%02d ", grid->heightmap[y][x]);
-        }
         printf("\n");
     }
 }
@@ -156,17 +154,11 @@ static void print_grid_visited(const grid_t* grid)
         for (size_t x = 0U; x < grid->size.x; x++)
         {
             if ((x == grid->start.x) && (y == grid->start.y))
-            {
                 printf("S ");
-            }
             else if ((x == grid->end.x) && (y == grid->end.y))
-            {
                 printf("E ");
-            }
             else
-            {
                 printf("%d ", grid->visited[y][x]);
-            }
         }
         printf("\n");
     }
@@ -177,28 +169,22 @@ static int bfs(grid_t* grid)
 {
     assert(grid != NULL);
 
+    int r;
     path_t p;
     p.distance = 0;
     p.pos = grid->start;
 
     queue_t* q = queue_init(sizeof(path_t));
-    if (!q)
-    {
-        assert(0);
-    }
+    assert(q != NULL);
 
-    if (!queue_enqueue(q, &p))
-    {
-        assert(0);
-    }
+    r = queue_enqueue(q, &p);
+    assert(r);
     grid->visited[p.pos.y][p.pos.x] = 1;
 
     while (0U < queue_count(q))
     {
-        if (!queue_dequeue(q, &p))
-        {
-            assert(0);
-        }
+        r = queue_dequeue(q, &p);
+        assert(r);
 
         if ((p.pos.x == grid->end.x) && (p.pos.y == grid->end.y))
         {
@@ -206,7 +192,6 @@ static int bfs(grid_t* grid)
             return p.distance;
         }
 
-        int r;
         r = check_up(q, grid, &p);
         assert(r >= 0);
         r = check_right(q, grid, &p);
