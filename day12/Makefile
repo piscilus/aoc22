@@ -3,6 +3,7 @@ TARGET_NAME = program
 
 # Specify all source files:
 SOURCES = main.c
+SOURCES += ../utils/compare.c
 SOURCES += ../utils/queue.c
 
 # Specify all include paths:

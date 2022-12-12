@@ -7,6 +7,7 @@
  * See file LICENSE for details or copy at https://opensource.org/licenses/MIT
  */
 
+#include "compare.h"
 #include "queue.h"
 
 #include <assert.h>
@@ -39,6 +40,8 @@ typedef struct
 } grid_t;
 
 static void parse_input(FILE* fp, grid_t* grid);
+
+static void prepare_grid(grid_t* grid);
 
 static void print_grid_map(const grid_t* grid);
 static void print_grid_visited(const grid_t* grid);
@@ -81,6 +84,40 @@ int main(int argc, char *argv[])
     int result = bfs(&grid);
 
     printf("Part 1: shortest path = %d\n", result);
+
+    size_t result_max = 100U;
+    int* results = malloc(result_max * sizeof(int));
+    assert(results != NULL);
+    size_t num_start_pos = 0U;
+    /* search for all position of lowest height and perform bfs */
+    for (size_t y = 0U; y < grid.size.y; y++)
+    {
+        for (size_t x = 0U; x < grid.size.x; x++)
+        {
+            if (grid.heightmap[y][x] == 0)
+            {
+                grid.start.x = x;
+                grid.start.y = y;
+                prepare_grid(&grid);
+                int r = bfs(&grid);
+                if (r > 0) /* store only valid results */
+                {
+                    num_start_pos++;
+                    if (num_start_pos >= result_max)
+                    {
+                        result_max += 100U;
+                        results = realloc(results, result_max * sizeof(int));
+                        assert(results != NULL);
+                    }
+                    results[num_start_pos - 1U] = r;
+                }
+            }
+        }
+    }
+
+    qsort(results, num_start_pos, sizeof(int), compare_ints);
+    printf("Part 2: shortest path = %d\n", results[0]);
+    free(results);
 
     return EXIT_SUCCESS;
 }
@@ -125,6 +162,17 @@ static void parse_input(FILE* fp, grid_t* grid)
         }
     }
     grid->size.y++;
+}
+
+static void prepare_grid(grid_t* grid)
+{
+    for (size_t y = 0U; y < grid->size.y; y++)
+    {
+        for (size_t x = 0U; x < grid->size.x; x++)
+        {
+            grid->visited[y][x] = 0;
+        }
+    }
 }
 
 static void print_grid_map(const grid_t* grid)
