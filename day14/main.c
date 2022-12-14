@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #define MAX_LINE_SIZE (1024U)
-#define GRID_MAX_X    (200U)
+#define GRID_MAX_X    (400U)
 #define GRID_MAX_Y    (200U)
 #define GRID_MID_X    (500U)
 #define GRID_CENTER_X (GRID_MAX_X / 2U)
@@ -38,7 +38,8 @@ static const coords_t sand_source = {.x = 500U, .y = 0U};
 size_t grid_normalize_x(size_t x);
 
 void grid_init(grid_t* grid, coords_t source);
-int grid_create();
+int grid_create(grid_t* grid, FILE* fp);
+void grid_insert_ground(grid_t* grid);
 
 void grid_print(const grid_t* grid);
 
@@ -65,10 +66,11 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    grid_t grid = {0};
-    grid_init(&grid, sand_source);
+    grid_t grid_p1 = {0};
+    grid_t grid_p2 = {0};
+    grid_init(&grid_p1, sand_source);
 
-    if (!grid_create(&grid, fp))
+    if (!grid_create(&grid_p1, fp))
     {
         fprintf(stderr, "Could not create grid from file!");
         exit(EXIT_FAILURE);
@@ -80,20 +82,23 @@ int main(int argc, char *argv[])
      * row at the bottom -> sand that enters this area falls down and stops the
      * program
      */
-    assert(grid.min.x > 0);
-    grid.min.x--;
-    grid.max.x += 2U;
-    grid.max.y += 2U;
+    assert(grid_p1.min.x > 0);
+    grid_p1.min.x--;
+    grid_p1.max.x += 2U;
+    grid_p1.max.y += 2U;
 
+    grid_p2 = grid_p1;
+    grid_insert_ground(&grid_p2);
+
+    int sand_p1 = 0;
     int running = 1;
-    int sand = 0;
     while (running > 0)
     {
-        running = grid_drop_sand(&grid);
+        running = grid_drop_sand(&grid_p1);
         if (running >= 0)
         {
-            sand++;
-            running = grid_move_sand(&grid);
+            sand_p1++;
+            running = grid_move_sand(&grid_p1);
         }
         else
         {
@@ -101,10 +106,32 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("Print final grid:\n");
-    grid_print(&grid);
-    assert(sand > 0);
-    printf("Part 1: amount of sand before it flows into the abyss = %d\n", sand - 1);
+    int sand_p2 = 0;
+    running = 1;
+    while (running > 0)
+    {
+        running = grid_drop_sand(&grid_p2);
+        if (running >= 0)
+        {
+            sand_p2++;
+            running = grid_move_sand(&grid_p2);
+        }
+        else
+        {
+            printf("Cannot drop more sand, source blocked!\n");
+        }
+    }
+
+    printf("Part 1:\n");
+    printf("- Final grid:\n");
+    grid_print(&grid_p1);
+    assert(sand_p1 > 0);
+    printf("- Amount of sand before it flows into the abyss = %d\n", sand_p1 - 1);
+
+    printf("Part 2:\n");
+    printf("- Final grid:\n");
+    // grid_print(&grid_p2); /* I recommend to redirect this to a file */
+    printf("- Amount of sand before it flows into the abyss = %d\n", sand_p2);
 
     return EXIT_SUCCESS;
 }
@@ -167,6 +194,19 @@ int grid_create(grid_t* grid, FILE* fp)
     }
 
     return 1;
+}
+
+void grid_insert_ground(grid_t* grid)
+{
+    assert((grid->max.y + 1U) < GRID_MAX_Y);
+    grid->min.x = 0U;
+    grid->max.x = GRID_MAX_X;
+    for (size_t x = 0U; x < grid->max.x; x++)
+    {
+        grid->grid[grid->max.y][x] = '#';
+    }
+    grid->max.y++;
+    assert((grid->max.y * 2) < GRID_MAX_X);
 }
 
 void grid_print(const grid_t* grid)
@@ -257,7 +297,7 @@ int grid_move_sand(grid_t* grid)
                             if (grid->grid[yy][x] == '.')
                             {
                                 /* free, check if this is the very last row */
-                                if ((yy + 1U) >= (grid->max.y - 1U))
+                                if ((yy + 1U) >= (grid->max.y))
                                 {
                                     /* sand will fall into abyss*/
                                     return 0;
