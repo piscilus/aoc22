@@ -215,7 +215,7 @@ void grid_draw_line(grid_t* grid, const coords_t* from, const coords_t* to)
 
 int grid_drop_sand(grid_t* grid)
 {
-    if (grid->grid[1][GRID_CENTER_X] == 'o')
+    if (grid->grid[0][GRID_CENTER_X] == 'o')
     {
         return -1; /* source blocked */
     }
@@ -223,7 +223,8 @@ int grid_drop_sand(grid_t* grid)
     {
         for (size_t y = 1U; y < grid->max.y; y++)
         {
-            if (grid->grid[y][GRID_CENTER_X] != '.')
+            if (   (grid->grid[y][GRID_CENTER_X] == '#')
+                || (grid->grid[y][GRID_CENTER_X] == 'o'))
             {
                 grid->grid[y - 1U][GRID_CENTER_X] = 'o';
                 return 1;
