@@ -24,6 +24,7 @@ typedef enum
     OP_SUB,
     OP_MUL,
     OP_DIV,
+    OP_EQUAL,
     OP_NONE
 } opsel_t;
 
@@ -104,9 +105,15 @@ main(int argc, char *argv[])
             if (!add_to_hashtab(ht, &data))
                 assert(0);
         }
+        else
+        {
+            assert(0);
+        }
     }
 
     fclose(fp);
+
+    /* part 1 */
 
     clock_t t1 = clock();
 
@@ -149,20 +156,28 @@ static uint64_t
 solve(hashtable_t* ht, char* key)
 {
     data_t* d = ht_read(ht, key);
-    uint64_t result = 0;
+    uint64_t result = 0U;
 
-    if (d->op == OP_NONE)
-        result = d->num;
-    else if (d->op == OP_ADD)
-        result = solve(ht, d->op_l) + solve(ht, d->op_r);
-    else if (d->op == OP_SUB)
-        result = solve(ht, d->op_l) - solve(ht, d->op_r);
-    else if (d->op == OP_MUL)
-        result = solve(ht, d->op_l) * solve(ht, d->op_r);
-    else if (d->op == OP_DIV)
-        result = solve(ht, d->op_l) / solve(ht, d->op_r);
-    else
-        assert(0);
+    switch (d->op)
+    {
+        case OP_NONE:
+            result = d->num;
+            break;
+        case OP_ADD:
+            result = solve(ht, d->op_l) + solve(ht, d->op_r);
+            break;
+        case OP_SUB:
+            result = solve(ht, d->op_l) - solve(ht, d->op_r);
+            break;
+        case OP_MUL:
+            result = solve(ht, d->op_l) * solve(ht, d->op_r);
+            break;
+        case OP_DIV:
+            result = solve(ht, d->op_l) / solve(ht, d->op_r);
+            break;
+        default:
+            assert(0);
+    }
 
     return result;
 }
