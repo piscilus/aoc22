@@ -47,6 +47,14 @@ typedef struct
     compass_t facing;
 } player_t;
 
+static const char dir[4] =
+{
+    [EAST]  = 'E',
+    [SOUTH] = 'S',
+    [WEST]  = 'W',
+    [NORTH] = 'N'
+};
+
 static const compass_t mapdir[2][4] =
 {
     [LEFT] = {
@@ -67,6 +75,8 @@ static void
 map_find_start(grid_t* m, player_t* p);
 static void
 map_print(grid_t* m);
+static void
+map_file(grid_t* m);
 
 static void
 player_turn(player_t* p, char d);
@@ -140,8 +150,8 @@ main(int argc, char *argv[])
     map_find_start(&map, &player);
     player.facing = EAST;
 
-    printf("x%llu y%llu\n", player.pos.x, player.pos.y);
-    printf("max x%llu max y%llu\n", map.max.x, map.max.y);
+    printf("Start position: x=%llu y=%llu f=%c\n", player.pos.x, player.pos.y, dir[player.facing]);
+    printf("Map size: max_x=%llu max_y=%llu\n", map.max.x, map.max.y);
 
     // map_print(&map);
 
@@ -152,33 +162,31 @@ main(int argc, char *argv[])
     {
         if (count == 2)
         {
-            // printf("mov: %d %c\n", num, c);
+            // printf("mov: steps=%d dir=%c turn: %c\n", num, dir[player.facing], c);
             player_move(&player, &map, num);
             player_turn(&player, c);
         }
         else if (count == 1)
         {
-            // printf("mov: %d\n", num);
+            // printf("mov: steps=%d dir=%c\n", num, dir[player.facing]);
             player_move(&player, &map, num);
         }
         else
         {
             assert(0);
         }
-        // printf("pos: x%llu y%llu f%d\n", player.pos.x, player.pos.y, player.facing);
+        // printf("pos: x=%llu y=%llu f=%c\n", player.pos.x, player.pos.y, dir[player.facing]);
     }
+    map.map[player.pos.y][player.pos.x] = 'E'; /* set end marker */
 
-    printf("x%llu y%llu\n", player.pos.x, player.pos.y);
-    map_print(&map);
+    // map_to_file(&map);
 
     size_t pw = (1000U * (player.pos.y + 1U))
               + (4U    * (player.pos.x + 1U))
               + (size_t) player.facing;
 
+    printf("End position: x=%llu y=%llu f=%d\n", player.pos.x, player.pos.y, player.facing);
     printf("Part 1: password = %llu\n", pw);
-    /* correct result for example but not for contest input
-     * -> 163006 is wrong
-     */
 
     fclose(fp);
 
@@ -215,6 +223,25 @@ map_print(grid_t* m)
         }
         putchar('\n');
     }
+}
+
+static void
+map_to_file(grid_t* m)
+{
+    FILE* fp = fopen("map.txt", "w+");
+    if (!fp)
+        assert(0);
+
+    for (size_t y = 0U; y < m->max.y; y++)
+    {
+        for (size_t x = 0U; x < m->max.x; x++)
+        {
+            fprintf(fp, "%c", m->map[y][x]);
+        }
+        fputc('\n', fp);
+    }
+
+    fclose(fp);
 }
 
 static void
@@ -283,6 +310,8 @@ player_move_right(player_t* p, grid_t* m, int s)
                 m->map[p->pos.y][p->pos.x] = '>';
                 p->pos.x = new_x;
                 s--;
+                if (s <= 0)
+                    moving = 0;
             }
         }
         else
@@ -326,6 +355,8 @@ player_move_left(player_t* p, grid_t* m, int s)
                 m->map[p->pos.y][p->pos.x] = '<';
                 p->pos.x = new_x;
                 s--;
+                if (s <= 0)
+                    moving = 0;
             }
         }
         else
@@ -369,6 +400,8 @@ player_move_up(player_t* p, grid_t* m, int s)
                 m->map[p->pos.y][p->pos.x] = '^';
                 p->pos.y = new_y;
                 s--;
+                if (s <= 0)
+                    moving = 0;
             }
         }
         else
@@ -412,6 +445,8 @@ player_move_down(player_t* p, grid_t* m, int s)
                 m->map[p->pos.y][p->pos.x] = 'v';
                 p->pos.y = new_y;
                 s--;
+                if (s <= 0)
+                    moving = 0;
             }
         }
         else
@@ -444,9 +479,14 @@ wrap_r_to_l(const player_t* p, const grid_t* m, size_t* new_x)
             case '#':
                 return 0;
             case '.':
-            default: /* include <, >, v, ^ */
+            case '<':
+            case '>':
+            case '^':
+            case 'v':
                 *new_x = i;
                 return 1;
+            default:
+                return -1;
         }
     }
 
@@ -465,10 +505,14 @@ wrap_l_to_r(const player_t* p, const grid_t* m, size_t* new_x)
             case '#':
                 return 0;
             case '.':
+            case '<':
+            case '>':
+            case '^':
+            case 'v':
                 *new_x = i;
                 return 1;
             default:
-                break;
+                return -1;
         }
     }
 
@@ -487,9 +531,14 @@ wrap_b_to_t(const player_t* p, const grid_t* m, size_t* new_y)
             case '#':
                 return 0;
             case '.':
-            default: /* include <, >, v, ^ */
+            case '<':
+            case '>':
+            case '^':
+            case 'v':
                 *new_y = i;
                 return 1;
+            default:
+                return -1;
         }
     }
 
@@ -508,9 +557,14 @@ wrap_t_to_b(const player_t* p, const grid_t* m, size_t* new_y)
             case '#':
                 return 0;
             case '.':
-            default: /* include <, >, v, ^ */
+            case '<':
+            case '>':
+            case '^':
+            case 'v':
                 *new_y = i;
                 return 1;
+            default:
+                return -1;
         }
     }
 
