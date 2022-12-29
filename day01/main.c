@@ -92,16 +92,16 @@ int main(int argc, char *argv[])
             calories_max = calories_per_elf[elf];
         }
     }
-    printf("Most calories carried by an elf: %d\n", calories_max);
+    printf("Part 1: Most calories carried by an elf = %d\n", calories_max);
 
     /* part 2 */
     qsort(calories_per_elf, elves, sizeof(int), compare_ints);
     int calories_top_three = 0;
     for (size_t elf = 1U; elf <= 3U; elf++)
     {
-        calories_top_three += calories_per_elf[elves-elf];
+        calories_top_three += calories_per_elf[elves - elf];
     }
-    printf("Calories carried by top-three elves: %d\n", calories_top_three);
+    printf("Part 2: Calories carried by top-three elves = %d\n", calories_top_three);
 
     return EXIT_SUCCESS;
 }
