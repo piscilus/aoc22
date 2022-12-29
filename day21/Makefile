@@ -7,7 +7,7 @@ SOURCES += ../utils/hashtable.c
 
 # Specify all include paths:
 INCLUDES = -I.
- INCLUDES += -I../utils
+INCLUDES += -I../utils
 
 # Specify defines:
 DEFINES =

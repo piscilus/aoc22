@@ -101,3 +101,9 @@ As you go to input this number on Bob's console, you discover that some buttons 
 Reversing the process, you can determine that for the decimal number 4890, the SNAFU number you need to supply to Bob's console is 2=-1=0.
 
 The Elves are starting to get cold. What SNAFU number do you supply to Bob's console?
+
+---
+
+Copyright 2015-2022 Advent of Code. All rights reserved.
+
+source: <https://adventofcode.com/2022/day/25>

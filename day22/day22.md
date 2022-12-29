@@ -80,3 +80,9 @@ To finish providing the password to this strange input device, you need to deter
 In the above example, the final row is 6, the final column is 8, and the final facing is 0. So, the final password is 1000 * 6 + 4 * 8 + 0: 6032.
 
 Follow the path given in the monkeys' notes. What is the final password?
+
+---
+
+Copyright 2015-2022 Advent of Code. All rights reserved.
+
+source: <https://adventofcode.com/2022/day/22>

@@ -43,3 +43,9 @@ Then, monkey sjmn has one of its numbers (30, from monkey drzm), and already has
 This process continues until root yells a number: 152.
 
 However, your actual situation involves considerably more monkeys. What number will the monkey named root yell?
+
+---
+
+Copyright 2015-2022 Advent of Code. All rights reserved.
+
+source: <https://adventofcode.com/2022/day/21>
