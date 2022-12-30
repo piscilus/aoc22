@@ -100,16 +100,18 @@ main(int argc, char *argv[])
 
     list_print(list);
 
-    for (size_t i = 0U; i < 2; i++)
+    for (size_t i = 0U; i < n; i++)
     {
         int r = list_move_node(list, i);
         assert(r > 0);
         putchar('\n');
-        list_print(list);
+        list_print(list); // DEBUG
         putchar('\n');
     }
 
-    list_print(list);
+    // sth. wrong with head?!
+
+    // list_print(list);
 
     int result = 0;
 
@@ -257,7 +259,7 @@ list_move_node(list_t* l, size_t idx)
     assert(l != NULL);
 
     node_t* tmp = list_find_idx(l, idx);
-    printf("%llu %d\n", idx, tmp->data.num);
+    printf("%llu %d\n", idx, tmp->data.num); // DEBUG
     if (tmp == NULL)
         return 0;
     int steps = tmp->data.num;
@@ -270,7 +272,7 @@ list_move_node(list_t* l, size_t idx)
             repl = repl->next;
             steps--;
         }
-        // if (repl->next == tmp)
+        // if (repl->next == tmp) // DEBUG
         //     return 1;
         tmp->prev->next = tmp->next;
         tmp->next->prev = tmp->prev;
@@ -287,7 +289,7 @@ list_move_node(list_t* l, size_t idx)
             repl = repl->prev;
             steps++;
         }
-        // if (repl->prev == tmp)
+        // if (repl->prev == tmp) // DEBUG
         //     return 1;
         tmp->prev->next = tmp->next;
         tmp->next->prev = tmp->prev;
