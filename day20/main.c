@@ -28,35 +28,26 @@ typedef struct node
     struct node* next;
 } node_t;
 
-typedef struct
-{
-    node_t* head;
-    node_t* tail;
-} list_t;
-
-list_t*
-list_init(void);
-
 int
-list_add_tail(list_t* l, data_t* d);
+list_add_tail(node_t** node, data_t* data);
 
 void
-list_print(const list_t* l);
+list_print(node_t* node);
 
 node_t*
-list_find_idx(const list_t* l, size_t idx);
+list_find_idx(node_t* node, size_t idx);
 
 node_t*
-list_find_num(const list_t* l, int num);
+list_find_num(node_t* node, int num);
 
 node_t*
-list_get_node(const list_t* l, size_t n);
+list_get_node(node_t* node, size_t n);
 
 int
-list_move_node(list_t* l, size_t idx);
+list_move_node(node_t** node, size_t idx);
 
 void
-list_free(list_t* l);
+list_free(node_t** node);
 
 int
 main(int argc, char *argv[])
@@ -77,8 +68,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    list_t* list = list_init();
-    assert(list != NULL);
+    node_t* head = NULL;
 
     char line_buf[CHUNK_SIZE];
     data_t data = {0};
@@ -87,7 +77,7 @@ main(int argc, char *argv[])
     {
         if (sscanf(line_buf, "%d", &data.num) == 1)
         {
-            int r = list_add_tail(list, &data);
+            int r = list_add_tail(&head, &data);
             assert(r != 0);
             n++;
             data.idx++;
@@ -98,150 +88,130 @@ main(int argc, char *argv[])
 
     fclose(fp);
 
-    list_print(list);
+    list_print(head);
 
     for (size_t i = 0U; i < n; i++)
     {
-        int r = list_move_node(list, i);
+        int r = list_move_node(&head, i);
         assert(r > 0);
         putchar('\n');
-        list_print(list); // DEBUG
+        list_print(head); // DEBUG
         putchar('\n');
     }
-
-    // sth. wrong with head?!
 
     // list_print(list);
 
     int result = 0;
 
-    node_t* node = list_get_node(list, 1000U);
+    node_t* node = list_get_node(head, 1000U);
     assert(node != NULL);
     printf("%d\n", node->data.num);
     result += node->data.num;
 
-    node = list_get_node(list, 2000U);
+    node = list_get_node(head, 2000U);
     assert(node != NULL);
     printf("%d\n", node->data.num);
     result += node->data.num;
 
-    node = list_get_node(list, 3000U);
+    node = list_get_node(head, 3000U);
     assert(node != NULL);
     printf("%d\n", node->data.num);
     result += node->data.num;
 
     printf("Part 1: %d\n", result);
 
-    list_free(list);
+    list_free(&head);
 
     return EXIT_SUCCESS;
 }
 
-list_t*
-list_init(void)
-{
-    list_t* new_list = (list_t*)malloc(sizeof(list_t));
-    if (new_list == NULL)
-        return NULL;
-    new_list->head = NULL;
-    new_list->tail = NULL;
-
-    return new_list;
-}
-
 int
-list_add_tail(list_t* l, data_t* d)
+list_add_tail(node_t** node, data_t* data)
 {
     node_t* new_node = (node_t*)malloc(sizeof(node_t));
     if (new_node == NULL)
         return 0;
 
-    new_node->data = *d;
+    new_node->data = *data;
 
-    if (l->tail == NULL)
+    if (*node == NULL)
     {
-        assert(l->head == NULL);
         new_node->prev = new_node;
         new_node->next = new_node;
-        l->tail = new_node;
-        l->head = new_node;
+        *node = new_node;
     }
     else
     {
-        new_node->next = l->head;
-        new_node->prev = l->tail;
-        l->tail->next = new_node;
-        l->head->prev = new_node;
-        l->tail = new_node;
+        new_node->prev = (*node)->prev;
+        new_node->next = *node;
+        (*node)->prev->next = new_node;
+        (*node)->prev = new_node;
     }
 
     return 1;
 }
 
 void
-list_print(const list_t* l)
+list_print(node_t* node)
 {
-    if (l->head == NULL)
+    if (node == NULL)
     {
         printf("list empty\n");
         return;
     }
 
-    node_t* tmp = l->head;
+    node_t* tmp = node;
     do
     {
         printf("[%lli] %d\n", tmp->data.idx, tmp->data.num);
         tmp = tmp->next;
     }
-    while(tmp != l->head);
+    while(tmp != node);
 }
 
 node_t*
-list_find_idx(const list_t* l, size_t idx)
+list_find_idx(node_t* node, size_t idx)
 {
-    assert(l != NULL);
-    if (l->head == NULL)
+    if (node == NULL)
         return NULL;
 
-    node_t* tmp = l->head;
+    node_t* tmp = node;
     do
     {
         if (tmp->data.idx == idx)
             return tmp;
         tmp = tmp->next;
     }
-    while(tmp != l->head);
+    while(tmp != node);
 
     return NULL;
 }
 
 node_t*
-list_find_num(const list_t* l, int num)
+list_find_num(node_t* node, int num)
 {
-    assert(l != NULL);
-    if (l->head == NULL)
+    if (node == NULL)
         return NULL;
 
-    node_t* tmp = l->head;
+    node_t* tmp = node;
     do
     {
         if (tmp->data.num == num)
             return tmp;
         tmp = tmp->next;
     }
-    while(tmp != l->head);
+    while(tmp != node);
 
     return NULL;
 }
 
 node_t*
-list_get_node(const list_t* l, size_t n)
+list_get_node(node_t* node, size_t n)
 {
-    assert(l != NULL);
-    if (l->head == NULL)
+    if (node == NULL)
         return NULL;
 
-    node_t* tmp = list_find_num(l, 0);
+    node_t* tmp = list_find_num(node, 0);
     if (tmp == NULL)
         return NULL;
     while (n > 0U)
@@ -254,11 +224,11 @@ list_get_node(const list_t* l, size_t n)
 }
 
 int
-list_move_node(list_t* l, size_t idx)
+list_move_node(node_t** node, size_t idx)
 {
-    assert(l != NULL);
+    assert(*node != NULL);
 
-    node_t* tmp = list_find_idx(l, idx);
+    node_t* tmp = list_find_idx(*node, idx);
     printf("%llu %d\n", idx, tmp->data.num); // DEBUG
     if (tmp == NULL)
         return 0;
@@ -303,20 +273,19 @@ list_move_node(list_t* l, size_t idx)
 }
 
 void
-list_free(list_t* l)
+list_free(node_t** head)
 {
-    if ((l == NULL) || (l->head == NULL))
+    if (*head == NULL)
         return;
 
-    node_t* tmp = l->head;
+    node_t* tmp = *head;
     do
     {
         node_t* next = tmp->next;
         free(tmp);
         tmp = next->next;
     }
-    while (tmp != l->head);
+    while (tmp != *head);
 
-    free(l);
-    l = NULL;
+    *head = NULL;
 }
