@@ -88,37 +88,38 @@ main(int argc, char *argv[])
 
     fclose(fp);
 
-    list_print(head);
+    // list_print(head);
 
     for (size_t i = 0U; i < n; i++)
     {
         int r = list_move_node(&head, i);
         assert(r > 0);
-        putchar('\n');
-        list_print(head); // DEBUG
-        putchar('\n');
+        // putchar('\n');
+        // list_print(head); // DEBUG
+        // putchar('\n');
     }
 
-    // list_print(list);
+    // list_print(head);
 
     int result = 0;
 
     node_t* node = list_get_node(head, 1000U);
     assert(node != NULL);
-    printf("%d\n", node->data.num);
+    // printf("%d\n", node->data.num);
     result += node->data.num;
 
     node = list_get_node(head, 2000U);
     assert(node != NULL);
-    printf("%d\n", node->data.num);
+    // printf("%d\n", node->data.num);
     result += node->data.num;
 
     node = list_get_node(head, 3000U);
     assert(node != NULL);
-    printf("%d\n", node->data.num);
+    // printf("%d\n", node->data.num);
     result += node->data.num;
 
     printf("Part 1: %d\n", result);
+    // -258 is wrong
 
     list_free(&head);
 
@@ -229,7 +230,6 @@ list_move_node(node_t** node, size_t idx)
     assert(*node != NULL);
 
     node_t* tmp = list_find_idx(*node, idx);
-    printf("%llu %d\n", idx, tmp->data.num); // DEBUG
     if (tmp == NULL)
         return 0;
     int steps = tmp->data.num;
@@ -237,13 +237,14 @@ list_move_node(node_t** node, size_t idx)
 
     if (steps > 0)
     {
+        /* move tmp after repl */
         while (steps > 0)
         {
             repl = repl->next;
             steps--;
         }
-        // if (repl->next == tmp) // DEBUG
-        //     return 1;
+        if (repl == tmp) //TODO handle this case
+            return 1;
         tmp->prev->next = tmp->next;
         tmp->next->prev = tmp->prev;
         repl->next->prev = tmp;
@@ -253,14 +254,14 @@ list_move_node(node_t** node, size_t idx)
     }
     else if (steps < 0)
     {
-        steps++;
+        /* move tmp before repl */
         while (steps < 0)
         {
             repl = repl->prev;
             steps++;
         }
-        // if (repl->prev == tmp) // DEBUG
-        //     return 1;
+        if (repl == tmp) //TODO handle this case
+            return 1;
         tmp->prev->next = tmp->next;
         tmp->next->prev = tmp->prev;
         repl->prev->next = tmp;
